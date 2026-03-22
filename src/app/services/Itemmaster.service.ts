@@ -7,27 +7,27 @@ import { Itemmaster } from "../models/itemmaster";
 
 export class ItemmasterService 
 {
-    private apiUrl="http://localhost:5269/api/Itemmaster";
+    private apiUrl="http://localhost:5120/api/ItemMaster";
     items = signal<Itemmaster[]>([]);
     constructor(private http:HttpClient){}
     GetAll():Observable<Itemmaster[]>
     {
-        return this.http.get<Itemmaster[]>('${this.apiUrl}/GetAll');
+        return this.http.get<Itemmaster[]>(`${this.apiUrl}/GetAll`);
     }
     GetById(Id:number):Observable<Itemmaster>
     {
-        return this.http.get<Itemmaster>('${this.api.Url}/GetById/${Id}');
+        return this.http.get<Itemmaster>(`${this.apiUrl}/GetById/${Id}`);
     }
     create(request:Itemmaster):Observable<number>
     {
-        return this.http.post<number>('${this.apiUrl}/Create',request);
+        return this.http.post<number>(`${this.apiUrl}/Create`,request);
     }
     Update(Id:number, request:Itemmaster):Observable<boolean>
     {
-        return this.http.put<boolean>('${this.apiUrl}/Update/${Id}',request);
+        return this.http.put<boolean>(`${this.apiUrl}/Update/${Id}`,request);
     }
     delete(Id:number):Observable<boolean>
     {
-        return this.http.delete<boolean>('${this.apiUrl}/delete/${Id}');
+        return this.http.delete<boolean>(`${this.apiUrl}/delete/${Id}`);
     }
 }
