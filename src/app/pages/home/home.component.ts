@@ -1,12 +1,38 @@
-import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
- 
-@Component
-({
+import { Component } from "@angular/core";
+import { AuthServive } from '../../services/auth.service';
+import { LoginRequest } from '../../models/loginrequest';
+import { FormsModule } from '@angular/forms';
+@Component({
   selector:'app-home',
   standalone:true,
-  imports:[CommonModule],
+  imports:[CommonModule, FormsModule],
   templateUrl:'./home.component.html',
   styleUrl:'./home.component.css'
 })
-export class HomeComponent{}
+export class HomeComponent{
+  isLoginSuccess: boolean | null = null;
+  userName = 'admin';
+  password = 'password';
+  message = '';
+ 
+  constructor(private service: AuthServive) {}
+  login() {
+    const param: LoginRequest = {
+      userName: this.userName,
+      password: this.password,
+};
+this.service.login(param).subscribe({
+      next: (res) => {
+        this.service.setSession(res.token, res.expiration);
+        this.isLoginSuccess = true;
+        this.message = 'Login Successfull';
+      },
+        error: (err) => {
+        this.isLoginSuccess = false;
+        this.message = 'Login Failed';
+        console.error(err);
+      },
+    });
+  }
+ }

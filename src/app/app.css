@@ -26,6 +26,7 @@
   color: #ffffff;            
   font-weight: 500;
 }
+ 
 .top-menu button {
   color: #ffffff !important;
   font-weight: 500;
@@ -40,4 +41,3 @@
 .top-menu button.active-link {
   background: linear-gradient(90deg, #1976d2, #42a5f5);
 }
- 
