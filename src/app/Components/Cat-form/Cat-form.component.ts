@@ -55,8 +55,8 @@ export class CatFormComponent implements OnInit
  
   ngOnInit(): void {
     this.form = this.fb.group({
-      Code: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(10)]],
-      Name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
+      code: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(10)]],
+      name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
       description:['', Validators.maxLength(250)],
       isActive:[true]
     });
@@ -88,7 +88,7 @@ export class CatFormComponent implements OnInit
           this.dialogRef.close(true);
         },
         error: () => {
-          this.snackBar.open('Error updating item', 'Close', {
+          this.snackBar.open('Error updating Category', 'Close', {
             duration: 3000
           });
         },
@@ -99,7 +99,7 @@ export class CatFormComponent implements OnInit
           this.dialogRef.close(true);
         },
         error: () => {
-          this.snackBar.open('Error creating item', 'Close', {
+          this.snackBar.open('Error creating Category', 'Close', {
             duration: 3000
           });
         },
