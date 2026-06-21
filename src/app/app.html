@@ -4,6 +4,7 @@
  
   <button mat-button [matMenuTriggerFor]="mastersMenu" routerLinkActive="active-link">Masters</button>
   <mat-menu #mastersMenu="matMenu">
+    <button mat-menu-item routerLink="/masters/users">Users</button>
     <button mat-menu-item routerLink="/masters/categories">Categories</button>
     <button mat-menu-item routerLink="/masters/items">Items</button>
     <button mat-menu-item routerLink="/masters/customers">Customers</button>
