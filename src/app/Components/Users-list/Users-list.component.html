@@ -75,7 +75,7 @@
     <ng-container matColumnDef="password">
       <th mat-header-cell *matHeaderCellDef>Password</th>
       <td mat-cell *matCellDef="let user">
-        {{ user.password | slice:0:10 }}
+        {{ user.password }}
       </td>
     </ng-container>
 
@@ -131,7 +131,7 @@
     <ng-container matColumnDef="addressLine1">
       <th mat-header-cell *matHeaderCellDef>Address Line 1</th>
       <td mat-cell *matCellDef="let user">
-        {{ user.addressLine1 | slice:0:20 }}
+        {{ user.addressLine1  }}
       </td>
     </ng-container>
 
@@ -139,7 +139,7 @@
     <ng-container matColumnDef="addressLine2">
       <th mat-header-cell *matHeaderCellDef>Address Line 2</th>
       <td mat-cell *matCellDef="let user">
-        {{ user.addressLine2 | slice:0:20 }}
+        {{ user.addressLine2 }}
       </td>
     </ng-container>
 
