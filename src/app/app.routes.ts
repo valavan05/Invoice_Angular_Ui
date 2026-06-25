@@ -15,7 +15,7 @@ export const routes: Routes = [
       { path: 'items', loadComponent: () => import('./Components/Item-list/item-list.component').then(m => m.ItemListComponent) },
       { path: 'items/create', loadComponent: () => import('./Components/Item-form/item-form.component').then(m => m.ItemFormComponent) },
       { path: 'items/edit/:id', loadComponent: () => import('./Components/Item-form/item-form.component').then(m => m.ItemFormComponent) },
-      { path: 'customers', loadComponent: () => import('./Components/Item-list/item-list.component').then(m => m.ItemListComponent) },
+      { path: 'customers', loadComponent: () => import('./Components/customer-list/customer-list.component').then(m => m.CustomerListComponent) },
       { path: 'vendors', loadComponent: () => import('./Components/Item-list/item-list.component').then(m => m.ItemListComponent) }
     ]
   },
