@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
-import { AuthServive } from "../../services/auth.service";
+import { AuthService } from "../../services/auth.service";
 import { Router } from "@angular/router";
- 
+
 @Component({
     selector:'app-login',
     standalone:true,
@@ -11,10 +11,10 @@ import { Router } from "@angular/router";
 })
 export class LogoutComponent{
     constructor(
-        private service:AuthServive,
+        private service:AuthService,
         private router:Router
     ){}
- 
+
     logout(){
         this.service.logout();
         this.router.navigate(['/home']);

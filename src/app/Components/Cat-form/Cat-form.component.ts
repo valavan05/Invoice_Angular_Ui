@@ -1,117 +1,135 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { CategoryService } from '../../services/Category.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatSelectModule } from '@angular/material/select';
-import { MatIconModule } from '@angular/material/icon';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogContent } from '@angular/material/dialog';
-import { Category } from '../../models/Category';
-import { SelectOnFocusDirective } from "../../custom-directives/select-on-focus.directive";
- 
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { CategoryService } from '../../services/category1.service';
+import { CategoryRequest } from '../../models/Category';
+import { getApiMessage } from '../../shared/api-helpers';
+import { failMessage, isOk } from '../../shared/api-result';
+
 @Component({
-  selector: 'app-Cat-form',
+  selector: 'app-category-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
-    RouterModule,
+    MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule,
-    MatRadioModule,
-    MatSelectModule,
-    MatIconModule,
-    SelectOnFocusDirective,
-    MatDialogContent
-],
+    MatCheckboxModule,
+    MatProgressBarModule,
+  ],
   templateUrl: './Cat-form.component.html',
-  styleUrls: ['./Cat-form.component.css']
+  styleUrl: '../../shared/master-page.css',
 })
-export class CatFormComponent implements OnInit
-{
-  form!:FormGroup;
-  isEdit = false;
-  id!: number;
-  isSubmitted = false;
-  constructor(
-    private fb: FormBuilder,
-    private service: CategoryService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private snackBar: MatSnackBar,
-    public dialogRef:MatDialogRef<CatFormComponent>, @Inject(MAT_DIALOG_DATA)
-    public data: any,
-  ) {}
- 
-  get f(){
-    return this.form.controls;
-  }
- 
-  ngOnInit(): void {
-    this.form = this.fb.group({
-      code: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(10)]],
-      name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
-      description:['', Validators.maxLength(250)],
-      isActive:[true]
-    });
- 
- 
-    if (this.data) {
-      this.isEdit = true;
-      this.id = this.data.id;
-      this.form.patchValue(this.data);
+export class CategoryFormComponent implements OnInit {
+  private readonly fb = inject(NonNullableFormBuilder);
+  private readonly service = inject(CategoryService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly snackBar = inject(MatSnackBar);
+
+  readonly categoryId = signal(0);
+  readonly isEdit = computed(() => this.categoryId() > 0);
+  readonly isLoading = signal(false);
+  readonly isSaving = signal(false);
+
+  readonly form = this.fb.group({
+    code: ['', [Validators.required, Validators.maxLength(5)]],
+    name: ['', [Validators.required, Validators.maxLength(25)]],
+    description: ['', Validators.maxLength(100)],
+    isActive: [true],
+  });
+
+  async ngOnInit(): Promise<void> {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+
+    if (id > 0) {
+      this.categoryId.set(id);
+      await this.load(id);
     }
   }
- 
-  submit() {
-    this.isSubmitted = true;
-    if(this.form.invalid)
-      {
-       this.form.markAllAsTouched();
+
+  private async load(id: number): Promise<void> {
+    this.isLoading.set(true);
+
+    try {
+      const response = await firstValueFrom(this.service.getById(id));
+
+      if (!response.success || !response.data) {
+        this.notify(response.message || 'Category not found');
+        this.goBack();
         return;
       }
-    const formValue = this.form.value;
-    const payload: Category = {
-        ...formValue,
-        isActive: formValue.isActive === true
-    };
- 
-    if (this.isEdit) {
-      this.service.Update(this.id, payload).subscribe({
-        next: () => {
-          this.dialogRef.close(true);
-        },
-        error: () => {
-          this.snackBar.open('Error updating Category', 'Close', {
-            duration: 3000
-          });
-        },
+
+      const c = response.data;
+
+      this.form.patchValue({
+        code: c.code,
+        name: c.name,
+        description: c.description ?? '',
+        isActive: c.isActive ?? true,
       });
-    } else {
-      this.service.create(payload).subscribe({
-        next: () => {
-          this.dialogRef.close(true);
-        },
-        error: () => {
-          this.snackBar.open('Error creating Category', 'Close', {
-            duration: 3000
-          });
-        },
-      });
+
+      this.form.markAsPristine();
+    } catch (error) {
+      this.notify(getApiMessage(error, 'Unable to load the category'));
+      this.goBack();
+    } finally {
+      this.isLoading.set(false);
     }
   }
-  allowOnlyNumbers(event: KeyboardEvent)
-  {
-    const charCode = event.key;
-    if(!/^[0-9]$/.test(charCode))
-    {
-      event.preventDefault();
+
+  async save(): Promise<void> {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.notify('Please fix the highlighted errors');
+      return;
     }
+
+    const value = this.form.getRawValue();
+
+    const request: CategoryRequest = {
+      code: value.code.trim(),
+      name: value.name.trim(),
+      description: value.description.trim() || null,
+      isActive: value.isActive,
+    };
+
+    this.isSaving.set(true);
+
+    try {
+      const response = this.isEdit()
+        ? await firstValueFrom(this.service.update(this.categoryId(), request))
+        : await firstValueFrom(this.service.create(request));
+
+      if (!isOk(response)) {
+        this.notify(failMessage(response, 'Save failed'));
+        return;
+      }
+
+      this.notify(this.isEdit() ? 'Category updated successfully' : 'Category created successfully');
+
+      this.form.markAsPristine();
+      this.goBack();
+    } catch (error) {
+      // e.g. duplicate code
+      this.notify(getApiMessage(error, 'Unable to save the category'));
+    } finally {
+      this.isSaving.set(false);
+    }
+  }
+
+  goBack(): void {
+    void this.router.navigate(['/masters/categories']);
+  }
+
+  private notify(message: string): void {
+    this.snackBar.open(message, 'Close', { duration: 4000 });
   }
 }

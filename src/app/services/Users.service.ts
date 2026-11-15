@@ -1,69 +1,60 @@
-import { Injectable, signal } from "@angular/core";
-import { HttpClient, HttpParams } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { Users } from "../models/Users";
-import { PagedResult } from "../models/paged-result";
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { ApiResponse } from '../models/api-response';
+import { PagedResult } from '../models/paged-result';
+import { User, UserFilter, UserRequest } from '../models/Users';
 
+/** All User endpoints: api/v1/User/... */
 @Injectable({ providedIn: 'root' })
+export class UserService {
+  private readonly http = inject(HttpClient);
 
-export class UsersService {
+  private readonly apiUrl = `${environment.apiUrl}/v1/User`;
 
-    private apiUrl = "http://localhost:5120/api/Users";
-
-    users = signal<Users[]>([]);
-
-    constructor(private http: HttpClient) { }
-
-    getPagedUsers(
-    userName: string,
-    firstName: string,
-    lastName: string,
-    phoneNumber: string,
-    city: string,
-    dateOfBirth: string | null,
-    isActive: boolean | null,
-    pageNumber: number,
-    pageSize: number
-): Observable<PagedResult<Users>>
-{
+  getPaged(filter: UserFilter): Observable<ApiResponse<PagedResult<User>>> {
     let params = new HttpParams()
-        .set('userName', userName || '')
-        .set('firstName', firstName || '')
-        .set('lastName', lastName || '')
-        .set('phoneNumber', phoneNumber || '')
-        .set('city', city || '')
-        .set('dateOfBirth', dateOfBirth || '')
-        .set('isActive', isActive == null ? '' : isActive.toString())
-        .set('pageNumber', pageNumber.toString())
-        .set('pageSize', pageSize.toString());
+      .set('pageNumber', filter.pageNumber)
+      .set('pageSize', filter.pageSize);
 
-    return this.http.get<PagedResult<Users>>(
-        `${this.apiUrl}/GetAllPaged`,
-        { params }
+    if (filter.userName?.trim()) {
+      params = params.set('userName', filter.userName.trim());
+    }
+
+    if (filter.email?.trim()) {
+      params = params.set('email', filter.email.trim());
+    }
+
+    if (filter.city?.trim()) {
+      params = params.set('city', filter.city.trim());
+    }
+
+    if (filter.isActive !== null) {
+      params = params.set('isActive', filter.isActive);
+    }
+
+    return this.http.get<ApiResponse<PagedResult<User>>>(
+      `${this.apiUrl}/GetPaged`,
+      { params },
     );
-}
-    GetAll(): Observable<Users[]>
-    {
-        return this.http.get<Users[]>(`${this.apiUrl}/GetAll`);
-    }
+  }
 
-    GetById(Id: number): Observable<Users>
-    {
-        return this.http.get<Users>(`${this.apiUrl}/GetById/${Id}`);
-    }
+  getById(id: number): Observable<ApiResponse<User>> {
+    return this.http.get<ApiResponse<User>>(`${this.apiUrl}/GetById/${id}`);
+  }
 
-    create(request: Users): Observable<number>
-    {
-        return this.http.post<number>(`${this.apiUrl}/Create`, request);
-    }
+  // Write calls return `unknown`: older controllers answer with true/false or a new id,
+  // newer ones with ApiResponse<T>. Screens use isOk() from shared/api-result.ts.
+  create(request: UserRequest): Observable<unknown> {
+    return this.http.post<unknown>(`${this.apiUrl}/Create`, request);
+  }
 
-    Update(Id: number, request: Users): Observable<boolean>
-    {
-        return this.http.put<boolean>(`${this.apiUrl}/Update/${Id}`, request);
-    }
+  update(id: number, request: UserRequest): Observable<unknown> {
+    return this.http.put<unknown>(`${this.apiUrl}/Update/${id}`, { id, ...request });
+  }
 
-    delete(Id: number): Observable<boolean>
-    {
-        return this.http.delete<boolean>(`${this.apiUrl}/Delete/${Id}`);
-    }
+  delete(id: number, updatedby: string): Observable<unknown> {
+    return this.http.delete<unknown>(`${this.apiUrl}/Delete/${id}?updatedBy=${updatedby}`);
+  }
 }
