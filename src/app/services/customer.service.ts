@@ -26,6 +26,10 @@ export class CustomerService {
       params = params.set('customerName', filter.customerName.trim());
     }
 
+    if (filter.mobileNo?.trim()) {
+      params = params.set('mobileNo', filter.mobileNo.trim());
+    }
+
     if (filter.city?.trim()) {
       params = params.set('city', filter.city.trim());
     }

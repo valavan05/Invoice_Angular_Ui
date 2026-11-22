@@ -26,8 +26,12 @@ export class UserService {
       params = params.set('email', filter.email.trim());
     }
 
-    if (filter.city?.trim()) {
-      params = params.set('city', filter.city.trim());
+    if (filter.firstName?.trim()) {
+      params = params.set('firstName', filter.firstName.trim());
+    }
+
+     if (filter.lastName?.trim()) {
+      params = params.set('lastName', filter.lastName.trim());
     }
 
     if (filter.isActive !== null) {

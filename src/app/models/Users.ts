@@ -22,7 +22,8 @@ export interface User {
 export interface UserFilter {
   userName: string;
   email: string;
-  city: string;
+  firstName: string;
+  lastName: string;
   isActive: boolean | null;
   pageNumber: number;
   pageSize: number;

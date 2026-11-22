@@ -54,6 +54,8 @@ export class UserListComponent implements OnInit {
     'userName',
     'displayName',
     'email',
+    'firstName',
+    'lastName',
     'phoneNumber',
     'city',
     'state',
@@ -72,7 +74,8 @@ export class UserListComponent implements OnInit {
   readonly filterForm = this.fb.group({
     userName: [''],
     email: [''],
-    city: [''],
+    firstName: [''],
+    lastName: [''],
     isActive: [null as boolean | null],
   });
 
@@ -98,7 +101,8 @@ export class UserListComponent implements OnInit {
       const filter: UserFilter = {
         userName: value.userName ?? '',
         email: value.email ?? '',
-        city: value.city ?? '',
+        firstName: value.firstName ?? '',
+        lastName: value.lastName ?? '',
         isActive: value.isActive,
         pageNumber: this.pageIndex() + 1,
         pageSize: this.pageSize(),
@@ -121,7 +125,7 @@ export class UserListComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.filterForm.reset({ userName: '', email: '', city: '', isActive: null });
+    this.filterForm.reset({ userName: '', email: '', firstName: '', lastName: '', isActive: null });
   }
 
   onPage(event: PageEvent): void {
