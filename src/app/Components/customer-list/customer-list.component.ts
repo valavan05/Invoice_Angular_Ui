@@ -51,6 +51,7 @@ export class CustomerListComponent implements OnInit {
   readonly displayedColumns = [
     'customerCode',
     'customerName',
+    'mobileNo',
     'city',
     'state',
     'status',
@@ -67,6 +68,7 @@ export class CustomerListComponent implements OnInit {
   readonly filterForm = this.fb.group({
     customerCode: [''],
     customerName: [''],
+    mobileNo: [''],
     city: [''],
     isActive: [null as boolean | null],
   });
@@ -94,6 +96,7 @@ export class CustomerListComponent implements OnInit {
       const filter: CustomerFilter = {
         customerCode: value.customerCode ?? '',
         customerName: value.customerName ?? '',
+        mobileNo: value.mobileNo ?? '',
         city: value.city ?? '',
         isActive: value.isActive,
         pageNumber: this.pageIndex() + 1,
@@ -120,6 +123,7 @@ export class CustomerListComponent implements OnInit {
     this.filterForm.reset({
       customerCode: '',
       customerName: '',
+      mobileNo: '',
       city: '',
       isActive: null,
     });

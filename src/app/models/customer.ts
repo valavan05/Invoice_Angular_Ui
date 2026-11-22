@@ -2,6 +2,7 @@ export interface Customer {
   id: number;
   customerCode: string;
   customerName: string;
+  mobileNo: string;
   city?: string | null;   // ASSUMED: remove if your Customer DTO has no city/state
   state?: string | null;
   isActive?: boolean | null;
@@ -11,6 +12,7 @@ export interface Customer {
 export interface CustomerFilter {
   customerCode: string;
   customerName: string;
+  mobileNo: string;
   city: string;
   isActive: boolean | null;
   pageNumber: number;
